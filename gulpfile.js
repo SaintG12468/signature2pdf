@@ -1,21 +1,41 @@
+"use strict";
+
 var gulp = require('gulp'),
     concat = require('gulp-concat'),
     jshint = require('jshint'),
     gjshint = require('gulp-jshint'),
+    uglify = require('gulp-uglify'),
+    cleanCss = require('gulp-clean-css'),
     browser = require('browser-sync'),
-    pages = require('gulp-gh-pages'),
-    uglify = require('gulp-uglify');
+    git = require('gulp-git'),
+    pages = require('gulp-gh-pages');
 
-gulp.task('default', function() {
-    // place code for your default task here
-    console.log('Running Default');
+gulp.task('css', function () {
+    // Copy CSS files to a different folder
+    gulp.src('./src/css/style.css')
+        .pipe(cleanCss())
+        .pipe(gulp.dest('dist/css'))
+        .pipe(git.add())
+        .pipe(git.status());
 });
 
-gulp.task('build', function () {
-    
+// GIT Working tree status
+gulp.task('status', function(){
+    git.status({args: '--porcelain'}, function (err, stdout) {
+        if (err) throw err;
+    });
 });
 
 gulp.task('deploy', function() {
     return gulp.src('./dist/**/*')
         .pipe(pages());
 });
+
+gulp.task('build', function () {
+    
+});
+
+gulp.task('default', ['css'], function() {
+    gulp.watch('src/css/style.css', ['css'])
+});
+
